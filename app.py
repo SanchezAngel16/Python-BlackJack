@@ -55,5 +55,6 @@ def get_next_card():
 
 def main():
     set_window()
+    print(get_next_card().get_card_info())
 
 main()
