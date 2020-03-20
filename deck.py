@@ -5,12 +5,14 @@ class Deck(object):
     def __init__(self):
         self.cards = []
         
+ 
     def get_sorted_cards(self):
         for i in range(4):
             for j in range(13):
                 self.cards.append(Card(i+1,j+1))
         return self.cards
 
+ 
     def get_unsorted_cards(self):
         unsorted_cards = []
         sorted_cards_temp = self.get_sorted_cards()
