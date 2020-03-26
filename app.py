@@ -1,63 +1,28 @@
 from deck import Deck
-from tkinter import *
+import pygame
 import os
+from gui_components import custom_button
 
 #GLOBAL VARS
-w_width = 700
-w_height = 500
-cards_area_width = 500
-cards_area_height = 500
-playing_area_width = 200
-playing_area_height = 500
+
+white = (255,255,255)
+black = (0,0,0)
+red = (255,0,0)
+blue = (0,0,255)
+green = (0,255,0)
+
+s_width = 700
+s_height = 500
 
 deck = Deck()
 main_deck = deck.get_unsorted_cards()
 player_deck = []
-house_deck = []
+dealer_deck = []
 
-def on_click(event):
-    print("Hola")
-
-def set_window():
-    window = Tk()
-    window.title('BlackJack')
-    window.maxsize(w_width, w_height)
-    window.minsize(w_width, w_height)
-
-    #Frames
-    left_frame = Frame(window, width = cards_area_width, height = 500, bg='green')
-    left_frame.grid(column = 0, row = 0)
-    right_frame = Frame(window, width=200, height=500, bg='black')
-    right_frame.grid(column = 1, row = 0)
-    
-    #Components for left_frame
-    top_frame = Frame(left_frame, width = 500, height = 250, bg='green')
-    top_frame.pack()
-    ##Components for top_frame
-    label = Label(top_frame, text="House", bg='green', fg='white', font=("Arial Bold", 18))
-    label.place(x = 250, y = 0)
-
-    bottom_frame = Frame(left_frame, width = 500, height = 250, bg='green')
-    bottom_frame.pack()
-    ##Components for bottom_frame
-    label = Label(bottom_frame, text="Player", bg='green', fg='white', font=("Arial Bold", 18))
-    label.place(x = 250, y = 0)
-    
-    n_card = get_next_card()
-    image = n_card.get_card_graphic()
-    panel = Label(bottom_frame, image = image)
-    panel.place(x=0,y=0)
-    n_card2 = get_next_card()
-    image2 = n_card2.get_card_graphic()
-    panel2 = Label(bottom_frame, image = image2)
-    panel2.place(x=30,y=0)
-    panel2.bind("<Button-1>", on_click)
-
-    #Components for right_frame
-    label = Label(right_frame, text="BlackJack", bg='black', fg='white', font=("Arial Bold", 18))
-    label.place(x = 40, y = 0)
-
-    window.mainloop()
+win = pygame.display.set_mode((s_width, s_height))
+pygame.font.init()
+hit_button = custom_button(white, 10, 450, 100, 20, "Hit")
+stand_button = custom_button(white, 150, 450, 100, 20, "Stand")
 
 def get_next_card():
     global main_deck
@@ -66,8 +31,68 @@ def get_next_card():
         return main_deck.pop()
     return main_deck.pop()
 
+def redraw_window(win, player_deck, dealer_deck):
+    win.fill((0,200,0))
+    player_score = 0
+    dealer_score = 0 
+    #Draw card decks
+    x_pos = 10
+    ##Draw dealer cards
+    for card in dealer_deck:
+        win.blit(card.get_graphic_card(), (x_pos,90))
+        x_pos += 80 + 5
+        dealer_score += card.card_value
+
+    ##Draw player cards
+    x_pos = 10
+    for card in player_deck:
+        win.blit(card.get_graphic_card(), (x_pos,260))
+        x_pos += 80 + 5
+
+    #Draw texts
+    font = pygame.font.SysFont('comicsans', 30)
+    blackjack_text = font.render("BlackJack", 1, (0,0,0))
+    win.blit(blackjack_text, (10,10))
+    dealer_text = font.render("Dealer: " + str(dealer_score), 1, (0,0,0))
+    win.blit(dealer_text, (10,60))
+    player_text = font.render("Player: " + str(player_score), 1, (0,0,0))
+    win.blit(player_text, (10,230))
+
+    #Draw hit and stand buttons
+    hit_button.draw(win, (0,0,0))
+    stand_button.draw(win, (0,0,0))
+
 
 def main():
-    set_window()
+    run = True
+    card = get_next_card()
+    card.visible = True
+    dealer_deck.append(card)
+    card = get_next_card()
+    card.visible = True
+    dealer_deck.append(card)
+    while run:
+        redraw_window(win, player_deck, dealer_deck)
+        pygame.display.update()
+        for event in pygame.event.get():
+            pos = pygame.mouse.get_pos()
+            if event.type == pygame.QUIT:
+                run = False
+            
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if hit_button.isOver(pos):
+                    print("hit was clicked")
+                if stand_button.isOver(pos):
+                    print("stand was clicked")
+            if event.type == pygame.MOUSEMOTION:
+                if hit_button.isOver(pos):
+                    hit_button.color = red
+                else:
+                    hit_button.color = white
+                if stand_button.isOver(pos):
+                    stand_button.color = red
+                else:
+                    stand_button.color = white      
+    pygame.display.quit()
 
 main()

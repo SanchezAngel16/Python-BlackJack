@@ -9,7 +9,10 @@ class Deck(object):
     def get_sorted_cards(self):
         for i in range(4):
             for j in range(13):
-                self.cards.append(Card(i+1,j+1))
+                if j >= 10:
+                    self.cards.append(Card(i+1,j+1,10))
+                else:
+                    self.cards.append(Card(i+1,j+1,j+1))
         return self.cards
 
  
